@@ -90,9 +90,11 @@ function App() {
   const [loadedProfile, setLoadedProfile] = useState<BuilderProfile | null>(null);
   const [builderProofIds, setBuilderProofIds] = useState<string[]>([]);
   const [lastTx, setLastTx] = useState('');
+  const [walletChainId, setWalletChainId] = useState<number | null>(null);
   const [demoProofs, setDemoProofs] = useState<Record<string, ProjectProof>>({});
 
   const hasContract = CONTRACT_ADDRESS && isAddress(CONTRACT_ADDRESS);
+  const isOnArc = walletChainId === ARC_CHAIN_ID;
   const readProvider = useMemo(() => {
     if (!ARC_RPC_URL) return null;
     return new JsonRpcProvider(ARC_RPC_URL, ARC_CHAIN_ID || undefined);
@@ -118,6 +120,34 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  async function refreshWalletChain() {
+    const ethereum = (window as EthereumWindow).ethereum;
+    if (!ethereum) return null;
+    const chainHex = await ethereum.request({ method: 'eth_chainId' }) as string;
+    const parsed = Number.parseInt(chainHex, 16);
+    setWalletChainId(Number.isFinite(parsed) ? parsed : null);
+    return parsed;
+  }
+
+  useEffect(() => {
+    const ethereum = (window as EthereumWindow).ethereum;
+    if (!ethereum?.on) return;
+    const onChainChanged = (chainId: unknown) => {
+      if (typeof chainId === 'string') setWalletChainId(Number.parseInt(chainId, 16));
+    };
+    const onAccountsChanged = (accounts: unknown) => {
+      const next = Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : '';
+      setAccount(next);
+    };
+    ethereum.on('chainChanged', onChainChanged);
+    ethereum.on('accountsChanged', onAccountsChanged);
+    void refreshWalletChain();
+    return () => {
+      ethereum.removeListener?.('chainChanged', onChainChanged);
+      ethereum.removeListener?.('accountsChanged', onAccountsChanged);
+    };
+  }, []);
+
   async function addOrSwitchArcNetwork() {
     setError('');
     const ethereum = (window as EthereumWindow).ethereum;
@@ -141,11 +171,13 @@ function App() {
 
     try {
       await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: chainHex }] });
+      await refreshWalletChain();
       setStatus(`Switched wallet to ${ARC_CHAIN_NAME}.`);
     } catch (switchError) {
       const maybe = switchError as { code?: number };
       if (maybe.code === 4902) {
         await ethereum.request({ method: 'wallet_addEthereumChain', params: [chainParams] });
+        await refreshWalletChain();
         setStatus(`${ARC_CHAIN_NAME} added to wallet.`);
       } else {
         throw switchError;
@@ -167,14 +199,24 @@ function App() {
     setStatus(`Connected ${connected}. Switching to ${ARC_CHAIN_NAME}…`);
 
     await addOrSwitchArcNetwork();
-    setStatus(`Connected ${connected} on ${ARC_CHAIN_NAME}.`);
+    const chain = await refreshWalletChain();
+    if (chain === ARC_CHAIN_ID) {
+      setStatus(`Connected ${connected} on ${ARC_CHAIN_NAME}.`);
+    } else {
+      setStatus(`Connected ${connected}, but wallet is still on chain ${chain ?? 'unknown'}. Switch to ${ARC_CHAIN_NAME} manually if needed.`);
+    }
   }
 
   async function writeContract() {
     const ethereum = (window as EthereumWindow).ethereum;
     if (!ethereum) throw new Error('Connect an injected wallet first.');
     if (!hasContract) throw new Error('Set VITE_CONTRACT_ADDRESS to a deployed ArcBuilderProof contract.');
+    await addOrSwitchArcNetwork();
     const browserProvider = new BrowserProvider(ethereum);
+    const network = await browserProvider.getNetwork();
+    if (Number(network.chainId) !== ARC_CHAIN_ID) {
+      throw new Error(`Wallet is connected, but not on ${ARC_CHAIN_NAME}. Current chain: ${network.chainId.toString()}.`);
+    }
     const signer = await browserProvider.getSigner();
     return new Contract(CONTRACT_ADDRESS, ARC_BUILDER_PROOF_ABI, signer);
   }
@@ -322,7 +364,7 @@ function App() {
         <div className="status-grid">
           <Status label="Wallet" value={account || 'Not connected'} />
           <Status label="Contract" value={hasContract ? CONTRACT_ADDRESS : 'Not configured: demo/readme mode'} />
-          <Status label="Network" value={ARC_CHAIN_ID ? `${ARC_CHAIN_NAME} (${ARC_CHAIN_ID})` : 'Configurable Arc-compatible EVM'} />
+          <Status label="Network" value={walletChainId ? `${isOnArc ? ARC_CHAIN_NAME : `Wrong network (${walletChainId})`} · target ${ARC_CHAIN_ID}` : ARC_CHAIN_ID ? `${ARC_CHAIN_NAME} (${ARC_CHAIN_ID})` : 'Configurable Arc-compatible EVM'} />
         </div>
       </section>
 
@@ -339,7 +381,7 @@ function App() {
           <Textarea label="Bio" value={profileForm.bio} onChange={(bio) => setProfileForm({ ...profileForm, bio })} />
           <Input label="Skills" value={profileForm.skills} onChange={(skills) => setProfileForm({ ...profileForm, skills })} />
           <Input label="Metadata URI" value={profileForm.metadataURI} onChange={(metadataURI) => setProfileForm({ ...profileForm, metadataURI })} />
-          <button type="submit" disabled={!account || !hasContract}>Save builder profile onchain</button>
+          <button type="submit" disabled={!account || !hasContract || !isOnArc}>Save builder profile onchain</button>
           {!hasContract && <p className="hint">Deploy the contract and set VITE_CONTRACT_ADDRESS to enable this write.</p>}
         </form>
 
@@ -350,7 +392,7 @@ function App() {
           <Input label="Proof URI" value={proofForm.proofURI} onChange={(proofURI) => setProofForm({ ...proofForm, proofURI })} />
           <Input label="Source URI" value={proofForm.sourceURI} onChange={(sourceURI) => setProofForm({ ...proofForm, sourceURI })} />
           <Input label="Metadata URI" value={proofForm.metadataURI} onChange={(metadataURI) => setProofForm({ ...proofForm, metadataURI })} />
-          <button type="submit">{hasContract ? 'Create proof onchain' : 'Create local demo proof'}</button>
+          <button type="submit" disabled={hasContract && (!account || !isOnArc)}>{hasContract ? 'Create proof onchain' : 'Create local demo proof'}</button>
         </form>
       </div>
 
