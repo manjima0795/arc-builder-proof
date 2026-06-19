@@ -235,7 +235,7 @@ function App() {
     if (!ethereum) throw new Error('Connect an injected wallet first.');
     if (!hasContract) throw new Error('Set VITE_CONTRACT_ADDRESS to a deployed ArcBuilderProof contract.');
     await addOrSwitchArcNetwork();
-    const browserProvider = new BrowserProvider(ethereum);
+    const browserProvider = new BrowserProvider(ethereum, 'any');
     const network = await browserProvider.getNetwork();
     if (Number(network.chainId) !== ARC_CHAIN_ID) {
       throw new Error(`Wallet is connected, but not on ${ARC_CHAIN_NAME}. Current chain: ${network.chainId.toString()}.`);
@@ -249,7 +249,7 @@ function App() {
     if (readProvider) return new Contract(CONTRACT_ADDRESS, ARC_BUILDER_PROOF_ABI, readProvider);
     const ethereum = (window as EthereumWindow).ethereum;
     if (!ethereum) throw new Error('Set VITE_ARC_RPC_URL for public reads or connect a wallet.');
-    return new Contract(CONTRACT_ADDRESS, ARC_BUILDER_PROOF_ABI, new BrowserProvider(ethereum));
+    return new Contract(CONTRACT_ADDRESS, ARC_BUILDER_PROOF_ABI, new BrowserProvider(ethereum, 'any'));
   }
 
   async function saveProfile(event: React.FormEvent) {
