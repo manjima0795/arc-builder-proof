@@ -160,10 +160,14 @@ function App() {
       setError('No injected wallet found. Install MetaMask/Rabby or use a wallet-enabled browser.');
       return;
     }
-    await addOrSwitchArcNetwork();
+
     const accounts = (await ethereum.request({ method: 'eth_requestAccounts' })) as string[];
-    setAccount(accounts[0] || '');
-    setStatus(`Connected ${accounts[0] || ''}`);
+    const connected = accounts[0] || '';
+    setAccount(connected);
+    setStatus(`Connected ${connected}. Switching to ${ARC_CHAIN_NAME}…`);
+
+    await addOrSwitchArcNetwork();
+    setStatus(`Connected ${connected} on ${ARC_CHAIN_NAME}.`);
   }
 
   async function writeContract() {
