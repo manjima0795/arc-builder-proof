@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BrowserProvider, Contract, JsonRpcProvider, isAddress } from 'ethers';
+import { BrowserProvider, Contract, Interface, JsonRpcProvider, isAddress } from 'ethers';
 import { describeWalletError, isUnknownChainError, toChainHex } from './wallet';
 import {
   ARC_BLOCK_EXPLORER,
@@ -230,18 +230,25 @@ function App() {
     }
   }
 
-  async function writeContract() {
+  async function sendContractTx(functionName: string, args: string[]) {
     const ethereum = (window as EthereumWindow).ethereum;
     if (!ethereum) throw new Error('Connect an injected wallet first.');
+    if (!account) throw new Error('Connect an account first.');
     if (!hasContract) throw new Error('Set VITE_CONTRACT_ADDRESS to a deployed ArcBuilderProof contract.');
+
     await addOrSwitchArcNetwork();
-    const browserProvider = new BrowserProvider(ethereum, 'any');
-    const network = await browserProvider.getNetwork();
-    if (Number(network.chainId) !== ARC_CHAIN_ID) {
-      throw new Error(`Wallet is connected, but not on ${ARC_CHAIN_NAME}. Current chain: ${network.chainId.toString()}.`);
+    const chain = await refreshWalletChain();
+    if (chain !== ARC_CHAIN_ID) {
+      throw new Error(`Wallet is connected, but not on ${ARC_CHAIN_NAME}. Current chain: ${chain ?? 'unknown'}.`);
     }
-    const signer = await browserProvider.getSigner();
-    return new Contract(CONTRACT_ADDRESS, ARC_BUILDER_PROOF_ABI, signer);
+
+    const iface = new Interface(ARC_BUILDER_PROOF_ABI);
+    const data = iface.encodeFunctionData(functionName, args);
+    const hash = await ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{ from: account, to: CONTRACT_ADDRESS, data }],
+    }) as string;
+    return hash;
   }
 
   function readContract() {
@@ -260,18 +267,15 @@ function App() {
         setError('Name is required by the smart contract before saving a builder profile.');
         return;
       }
-      const contract = await writeContract();
-      const tx = await contract.upsertBuilderProfile(
+      const hash = await sendContractTx('upsertBuilderProfile', [
         profileForm.name,
         profileForm.bio,
         profileForm.skills,
         profileForm.metadataURI,
-      );
-      setStatus(`Profile tx submitted: ${tx.hash}`);
-      setLastTx(tx.hash);
-      await tx.wait();
-      setStatus('Builder profile saved onchain.');
-      if (account) await loadBuilder(account);
+      ]);
+      setStatus(`Profile tx submitted: ${hash}`);
+      setLastTx(hash);
+      setTimeout(() => { if (account) void loadBuilder(account); }, 3000);
     } catch (err) {
       setError(normalizeError(err));
     }
@@ -308,26 +312,16 @@ function App() {
         return;
       }
 
-      const contract = await writeContract();
-      const tx = await contract.createProjectProof(
+      const hash = await sendContractTx('createProjectProof', [
         proofForm.title,
         proofForm.description,
         proofForm.proofURI,
         proofForm.sourceURI,
         proofForm.metadataURI,
-      );
-      setStatus(`Proof tx submitted: ${tx.hash}`);
-      setLastTx(tx.hash);
-      const receipt = await tx.wait();
-      const eventLog = receipt.logs
-        .map((log: unknown) => {
-          try { return contract.interface.parseLog(log as never); } catch { return null; }
-        })
-        .find((log: { name?: string } | null) => log?.name === 'ProjectProofCreated');
-      const id = eventLog?.args?.proofId?.toString() || '';
-      setStatus(`Project proof saved onchain${id ? ` as #${id}` : ''}.`);
-      if (id) window.location.hash = `/proof/${id}`;
-      if (account) await loadBuilder(account);
+      ]);
+      setStatus(`Proof tx submitted: ${hash}`);
+      setLastTx(hash);
+      setTimeout(() => { if (account) void loadBuilder(account); }, 3000);
     } catch (err) {
       setError(normalizeError(err));
     }
