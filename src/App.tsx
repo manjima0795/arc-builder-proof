@@ -381,7 +381,7 @@ function App() {
           <Textarea label="Bio" value={profileForm.bio} onChange={(bio) => setProfileForm({ ...profileForm, bio })} />
           <Input label="Skills" value={profileForm.skills} onChange={(skills) => setProfileForm({ ...profileForm, skills })} />
           <Input label="Metadata URI" value={profileForm.metadataURI} onChange={(metadataURI) => setProfileForm({ ...profileForm, metadataURI })} />
-          <button type="submit" disabled={!account || !hasContract || !isOnArc}>Save builder profile onchain</button>
+          <button type="submit" disabled={!account || !hasContract}>Save builder profile onchain</button>
           {!hasContract && <p className="hint">Deploy the contract and set VITE_CONTRACT_ADDRESS to enable this write.</p>}
         </form>
 
@@ -392,7 +392,7 @@ function App() {
           <Input label="Proof URI" value={proofForm.proofURI} onChange={(proofURI) => setProofForm({ ...proofForm, proofURI })} />
           <Input label="Source URI" value={proofForm.sourceURI} onChange={(sourceURI) => setProofForm({ ...proofForm, sourceURI })} />
           <Input label="Metadata URI" value={proofForm.metadataURI} onChange={(metadataURI) => setProofForm({ ...proofForm, metadataURI })} />
-          <button type="submit" disabled={hasContract && (!account || !isOnArc)}>{hasContract ? 'Create proof onchain' : 'Create local demo proof'}</button>
+          <button type="submit" disabled={hasContract && !account}>{hasContract ? 'Create proof onchain' : 'Create local demo proof'}</button>
         </form>
       </div>
 
