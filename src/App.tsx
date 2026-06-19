@@ -358,6 +358,7 @@ function App() {
         <div className="actions">
           <button onClick={connectWallet}>{account ? 'Wallet connected' : 'Connect wallet'}</button>
           <button className="ghost" onClick={addOrSwitchArcNetwork}>Add Arc Network</button>
+          <button className="ghost" onClick={() => void refreshWalletChain()}>Refresh Wallet Status</button>
           <a className="button ghost" href="https://faucet.circle.com" target="_blank" rel="noreferrer">Claim Arc Faucet</a>
           <a className="button ghost" href="https://github.com/manjima0795/arc-builder-proof" target="_blank" rel="noreferrer">GitHub repo</a>
         </div>
