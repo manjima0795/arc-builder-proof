@@ -418,7 +418,7 @@ function App() {
           then share a static GitHub Pages proof URL with reviewers, grant committees, and partners.
         </p>
         <div className="actions">
-          <button onClick={connectWallet}>{account ? 'Wallet connected' : 'Connect wallet'}</button>
+          <button onClick={connectWallet}>{account ? `Connected: ${account.slice(0, 6)}…${account.slice(-4)}` : 'Connect wallet'}</button>
           <button className="ghost" onClick={addOrSwitchArcNetwork}>Add Arc Network</button>
           <button className="ghost" onClick={() => void refreshWalletChain()}>Refresh Wallet Status</button>
           <a className="button ghost" href="https://faucet.circle.com" target="_blank" rel="noreferrer">Claim Arc Faucet</a>
