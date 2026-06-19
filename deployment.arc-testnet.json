@@ -1,0 +1,10 @@
+{
+  "network": "Arc Testnet",
+  "chainId": 5042002,
+  "rpcUrl": "https://rpc.testnet.arc.network",
+  "explorer": "https://testnet.arcscan.app",
+  "deployer": "0xD1654fc9A15C3034Fe5D5FB59b765c86B37b9897",
+  "contract": "0x5546117F1ddf189C0f0B9cb725a33FBd6400765F",
+  "txHash": "0x361cadee71da7afd31c2ad61caa8b62a510403704b11c52ee36d056b3cb8b607",
+  "deployedAt": "2026-06-19T00:16:36.311Z"
+}

@@ -6,7 +6,7 @@ Target repo: `https://github.com/manjima0795/arc-builder-proof`
 
 ## Short grant description
 
-Arc Builder Proof gives Arc builders a simple public proof-of-build page: connect a wallet, save a builder profile, create project proofs with source/proof/metadata links, and share reviewer-friendly URLs. The MVP is intentionally lightweight so it can be deployed quickly to GitHub Pages while the Solidity contract can be deployed to any Arc-compatible EVM testnet/mainnet once Arc RPC, chain id, explorer, faucet, and deployer wallet are available.
+Arc Builder Proof gives Arc builders a simple public proof-of-build page: connect a wallet, save a builder profile, create project proofs with source/proof/metadata links, and share reviewer-friendly URLs. The MVP is intentionally lightweight so it can be deployed quickly to GitHub Pages or Vercel while the Solidity contract is deployed on Arc Testnet.
 
 ## What is included
 
@@ -64,17 +64,17 @@ Copy the example env file:
 cp .env.example .env
 ```
 
-Set public frontend values after contract deployment:
+Arc Testnet values used by this deployment:
 
 ```bash
-VITE_CONTRACT_ADDRESS=0xYourDeployedContract
-VITE_ARC_CHAIN_ID=12345
+VITE_CONTRACT_ADDRESS=0x5546117F1ddf189C0f0B9cb725a33FBd6400765F
+VITE_ARC_CHAIN_ID=5042002
 VITE_ARC_CHAIN_NAME=Arc Testnet
-VITE_ARC_RPC_URL=https://rpc.example
-VITE_ARC_BLOCK_EXPLORER=https://explorer.example
+VITE_ARC_RPC_URL=https://rpc.testnet.arc.network
+VITE_ARC_BLOCK_EXPLORER=https://testnet.arcscan.app
 ```
 
-If real Arc RPC/docs are not available yet, keep these as placeholders and deploy to any EVM testnet for validation. The contract is EVM-compatible and does not use chain-specific opcodes.
+The same public values are included in `.env.production` for static frontend builds.
 
 ## Deploy the contract
 
@@ -85,16 +85,25 @@ npm run compile
 npm test
 ```
 
-For a live Arc-compatible deployment, export runtime-only secrets and chain details. Never commit these values.
+Live Arc Testnet deployment:
+
+```text
+Network: Arc Testnet
+Chain ID: 5042002
+Contract: 0x5546117F1ddf189C0f0B9cb725a33FBd6400765F
+Deployer: 0xD1654fc9A15C3034Fe5D5FB59b765c86B37b9897
+Deploy tx: 0x361cadee71da7afd31c2ad61caa8b62a510403704b11c52ee36d056b3cb8b607
+Explorer: https://testnet.arcscan.app
+```
+
+For a future redeploy, export runtime-only secrets and chain details. Never commit private keys.
 
 ```bash
 export DEPLOYER_PRIVATE_KEY=<runtime-only-private-key>
-export ARC_RPC_URL=https://rpc.example
-export ARC_CHAIN_ID=12345
+export ARC_RPC_URL=https://rpc.testnet.arc.network
+export ARC_CHAIN_ID=5042002
 npm run deploy -- --network arc
 ```
-
-The deploy script prints the new contract address. Put that address into `VITE_CONTRACT_ADDRESS` before building the frontend.
 
 ## GitHub Pages deployment
 
@@ -140,14 +149,13 @@ Events:
 - `ProjectProofCreated`
 - `ProjectProofUpdated`
 
-## Real Arc deployment blocker
+## Deployment status
 
-This MVP is ready for an EVM-compatible deployment, but a real Arc deployment needs Arry's operational inputs:
+The contract has been deployed to Arc Testnet and the frontend is configured with public Arc values in `.env.production`.
 
-- Arc RPC URL,
-- Arc chain id,
-- block explorer URL,
-- funded deployer wallet,
-- faucet/testnet token access if deploying to testnet.
+Remaining app deployment options:
 
-Until those are available, deploy to a standard EVM testnet or run in demo mode for grant/application review.
+- Vercel: import `manjima0795/arc-builder-proof`, framework `Vite`, build command `npm run build`, output directory `dist`.
+- GitHub Pages: set repository Pages source to GitHub Actions and run the included workflow.
+
+Private deployer wallet files are stored outside the repository and are never committed.
