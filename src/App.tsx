@@ -147,20 +147,36 @@ function App() {
 
   useEffect(() => {
     const ethereum = (window as EthereumWindow).ethereum;
-    if (!ethereum?.on) return;
+    if (!ethereum) return;
+    const provider = ethereum;
+
+    async function syncExistingConnection() {
+      await refreshWalletChain();
+      try {
+        const accounts = (await provider.request({ method: 'eth_accounts' })) as string[];
+        const connected = accounts[0] || '';
+        setAccount(connected);
+        if (connected) setStatus(`Connected ${connected} on ${ARC_CHAIN_NAME}.`);
+      } catch (err) {
+        setWalletDiagnostic(`Injected wallet detected, but eth_accounts failed: ${describeWalletError(err)}`);
+      }
+    }
+
     const onChainChanged = (chainId: unknown) => {
       if (typeof chainId === 'string') setWalletChainId(Number.parseInt(chainId, 16));
     };
     const onAccountsChanged = (accounts: unknown) => {
       const next = Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : '';
       setAccount(next);
+      setStatus(next ? `Connected ${next} on ${ARC_CHAIN_NAME}.` : 'Wallet disconnected.');
     };
-    ethereum.on('chainChanged', onChainChanged);
-    ethereum.on('accountsChanged', onAccountsChanged);
-    void refreshWalletChain();
+
+    provider.on?.('chainChanged', onChainChanged);
+    provider.on?.('accountsChanged', onAccountsChanged);
+    void syncExistingConnection();
     return () => {
-      ethereum.removeListener?.('chainChanged', onChainChanged);
-      ethereum.removeListener?.('accountsChanged', onAccountsChanged);
+      provider.removeListener?.('chainChanged', onChainChanged);
+      provider.removeListener?.('accountsChanged', onAccountsChanged);
     };
   }, []);
 
