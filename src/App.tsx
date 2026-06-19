@@ -256,6 +256,10 @@ function App() {
     event.preventDefault();
     setError('');
     try {
+      if (!profileForm.name.trim()) {
+        setError('Name is required by the smart contract before saving a builder profile.');
+        return;
+      }
       const contract = await writeContract();
       const tx = await contract.upsertBuilderProfile(
         profileForm.name,
@@ -277,6 +281,10 @@ function App() {
     event.preventDefault();
     setError('');
     try {
+      if (!proofForm.title.trim()) {
+        setError('Title is required by the smart contract before creating a project proof.');
+        return;
+      }
       if (!hasContract) {
         const now = BigInt(Math.floor(Date.now() / 1000));
         const id = String(Object.keys(demoProofs).length + 1);
