@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ArcBuilderProof Grant Deck</title>
+  <meta name="description" content="Grant-ready pitch deck for ArcBuilderProof, a proof-of-build registry for Arc builders." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05070d;
+      --panel: #0b1020;
+      --panel-2: #101827;
+      --ink: #f7fbff;
+      --muted: #9fb0c8;
+      --dim: #637189;
+      --line: rgba(255,255,255,.10);
+      --line-soft: rgba(255,255,255,.06);
+      --arc: #6ee7ff;
+      --violet: #8b5cf6;
+      --green: #10b981;
+      --pink: #f472b6;
+      --orange: #fbbf24;
+      --page-w: 1280px;
+      --page-h: 720px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #02040a; color: var(--ink); }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-feature-settings: "cv01", "ss03";
+      line-height: 1.35;
+    }
+    a { color: var(--arc); text-decoration: none; }
+    strong { color: #fff; }
+
+    .deck {
+      display: grid;
+      gap: 28px;
+      padding: 28px;
+      width: min(100%, calc(var(--page-w) + 56px));
+      margin: 0 auto;
+    }
+
+    .slide {
+      width: var(--page-w);
+      min-height: var(--page-h);
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(110,231,255,.20), transparent 27%),
+        radial-gradient(circle at 90% 18%, rgba(139,92,246,.23), transparent 28%),
+        radial-gradient(circle at 58% 100%, rgba(16,185,129,.11), transparent 35%),
+        linear-gradient(145deg, #070a13 0%, #080d19 45%, #03050b 100%);
+      box-shadow: 0 38px 120px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,255,255,.04);
+      padding: 54px 64px;
+      page-break-after: always;
+      break-after: page;
+    }
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle at 50% 35%, #000 0, transparent 72%);
+      opacity: .58;
+    }
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(255,255,255,.035);
+      border-radius: 22px;
+      pointer-events: none;
+    }
+    .content { position: relative; z-index: 1; height: 100%; }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+      color: var(--muted);
+      font: 700 12px/1 JetBrains Mono, ui-monospace, monospace;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      border-radius: 999px;
+      padding: 9px 13px;
+      color: #dce8ff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 18px rgba(16,185,129,.8); }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 78px;
+      line-height: .92;
+      letter-spacing: -3.2px;
+      max-width: 850px;
+      font-weight: 800;
+    }
+    h2 {
+      font-size: 56px;
+      line-height: .96;
+      letter-spacing: -2.1px;
+      max-width: 790px;
+      font-weight: 760;
+    }
+    h3 { font-size: 24px; letter-spacing: -.45px; font-weight: 760; }
+    .section-label {
+      color: var(--arc);
+      font: 800 13px/1 JetBrains Mono, ui-monospace, monospace;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .lede {
+      color: #c9d7ed;
+      font-size: 22px;
+      line-height: 1.58;
+      letter-spacing: -.25px;
+      max-width: 780px;
+      margin-top: 24px;
+    }
+    .muted { color: var(--muted); }
+    .tiny { color: var(--dim); font: 700 11px/1.6 JetBrains Mono, ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .grad {
+      background: linear-gradient(105deg, #fff 0%, #d9f6ff 30%, #9aa4ff 68%, #7fffd4 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .footer {
+      position: absolute;
+      left: 64px;
+      right: 64px;
+      bottom: 34px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--dim);
+      font: 600 12px/1 JetBrains Mono, ui-monospace, monospace;
+      letter-spacing: .06em;
+      z-index: 2;
+    }
+
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 34px; min-height: 520px; }
+    .orb-card {
+      position: relative;
+      min-height: 420px;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 28px 80px rgba(0,0,0,.42);
+    }
+    .orb-card::before {
+      content: "";
+      position: absolute;
+      width: 370px; height: 370px;
+      border-radius: 50%;
+      left: 62px; top: 25px;
+      background: conic-gradient(from 210deg, var(--arc), var(--violet), var(--pink), var(--green), var(--arc));
+      filter: blur(2px);
+      opacity: .76;
+      animation: none;
+    }
+    .orb-card::after {
+      content: "";
+      position: absolute;
+      inset: 54px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #11192b 0 36%, transparent 37%), rgba(0,0,0,.34);
+      border: 1px solid rgba(255,255,255,.11);
+      backdrop-filter: blur(18px);
+    }
+    .node {
+      position: absolute;
+      z-index: 2;
+      border: 1px solid var(--line);
+      background: rgba(8,13,25,.78);
+      border-radius: 16px;
+      padding: 13px 15px;
+      min-width: 150px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .node b { display: block; font-size: 14px; }
+    .node span { display: block; margin-top: 5px; color: var(--muted); font: 600 11px/1.35 JetBrains Mono, monospace; }
+    .n1 { left: 30px; top: 36px; }
+    .n2 { right: 34px; top: 124px; }
+    .n3 { left: 55px; bottom: 44px; }
+    .n4 { right: 52px; bottom: 34px; }
+
+    .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 40px; }
+    .two { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 34px; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 34px; }
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.062), rgba(255,255,255,.026));
+      border-radius: 22px;
+      padding: 22px;
+      min-height: 142px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .card p { color: var(--muted); margin-top: 10px; font-size: 15.5px; line-height: 1.48; }
+    .icon {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border-radius: 14px;
+      background: rgba(110,231,255,.10);
+      border: 1px solid rgba(110,231,255,.22);
+      color: var(--arc);
+      font: 800 20px/1 JetBrains Mono, monospace;
+      margin-bottom: 16px;
+    }
+    .accent-violet .icon { background: rgba(139,92,246,.12); border-color: rgba(139,92,246,.25); color: #c4b5fd; }
+    .accent-green .icon { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.25); color: #6ee7b7; }
+    .accent-orange .icon { background: rgba(251,191,36,.10); border-color: rgba(251,191,36,.25); color: #fde68a; }
+
+    .quote-band {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+      margin-top: 36px;
+    }
+    .problem-card { min-height: 250px; }
+    .big-number { font-size: 76px; line-height: .9; letter-spacing: -3px; font-weight: 800; color: #fff; }
+
+    .screen-wrap {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 28px;
+      margin-top: 30px;
+      align-items: center;
+    }
+    .screenshot {
+      border: 1px solid rgba(255,255,255,.14);
+      background: #05070d;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 26px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+      transform: perspective(1200px) rotateY(-5deg) rotateX(2deg);
+      transform-origin: center;
+    }
+    .screenshot img { display: block; width: 100%; height: 390px; object-fit: cover; object-position: top center; }
+    #slide-4 { padding-top: 44px; padding-bottom: 44px; }
+    #slide-4 .topbar { margin-bottom: 16px; }
+    #slide-4 h2 { font-size: 46px; max-width: 920px; }
+    #slide-4 .screen-wrap { margin-top: 22px; gap: 24px; }
+    #slide-4 .screenshot img { height: 318px; }
+    #slide-4 .mini { padding: 12px; gap: 12px; grid-template-columns: 40px 1fr; }
+    #slide-4 .mini .icon { width: 40px; height: 40px; font-size: 17px; }
+    #slide-4 .mini h3 { font-size: 19px; }
+    #slide-4 .mini p { font-size: 12.8px; line-height: 1.34; }
+    .stack { display: grid; gap: 14px; }
+    .mini {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 14px;
+      align-items: start;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .mini p { color: var(--muted); margin-top: 4px; font-size: 14.2px; line-height: 1.42; }
+    .mini .icon { margin: 0; width: 46px; height: 46px; }
+
+    .arc-grid { display: grid; grid-template-columns: .95fr 1.05fr; gap: 28px; margin-top: 30px; align-items: stretch; }
+    .chain-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(110,231,255,.08), rgba(139,92,246,.05));
+      border-radius: 26px;
+      padding: 26px;
+      min-height: 390px;
+      position: relative;
+      overflow: hidden;
+    }
+    .chain-card code, .code {
+      font-family: JetBrains Mono, ui-monospace, monospace;
+      color: #bff3ff;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 9px;
+      padding: 5px 8px;
+      overflow-wrap: anywhere;
+    }
+    .spec-list { display: grid; gap: 14px; margin-top: 22px; }
+    .spec { display: flex; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line-soft); padding-bottom: 12px; font-size: 15px; }
+    .spec span:first-child { color: var(--muted); }
+    .spec span:last-child { text-align: right; font-family: JetBrains Mono, monospace; color: #eaf8ff; }
+
+    .arch {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 48px;
+      align-items: center;
+    }
+    .arch-box {
+      min-height: 145px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      border-radius: 22px;
+      padding: 20px;
+      display: grid;
+      align-content: center;
+      text-align: center;
+      position: relative;
+    }
+    .arch-box:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--arc);
+      font: 800 28px/1 JetBrains Mono, monospace;
+      z-index: 3;
+    }
+    .arch-box p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 40px; }
+    .stat { border: 1px solid var(--line); background: rgba(255,255,255,.04); border-radius: 22px; padding: 24px; min-height: 166px; }
+    .stat .num { font-size: 48px; font-weight: 800; letter-spacing: -2px; color: #fff; }
+    .stat p { color: var(--muted); margin-top: 11px; font-size: 14.5px; line-height: 1.4; }
+
+    .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 44px; }
+    .phase { position: relative; border: 1px solid var(--line); background: rgba(255,255,255,.04); border-radius: 24px; padding: 24px; min-height: 315px; }
+    .phase .badge { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 20px; background: linear-gradient(135deg, rgba(110,231,255,.25), rgba(139,92,246,.25)); border: 1px solid rgba(255,255,255,.14); font: 800 16px/1 JetBrains Mono, monospace; }
+    .phase ul { margin: 18px 0 0; padding-left: 18px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+
+    .vision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 40px; }
+    .vision-card { min-height: 212px; }
+    .link-grid { display: grid; grid-template-columns: .95fr 1.05fr; gap: 26px; margin-top: 36px; }
+    .links { display: grid; gap: 14px; }
+    .link-row { border: 1px solid var(--line); background: rgba(255,255,255,.04); border-radius: 18px; padding: 16px 18px; display: grid; gap: 5px; }
+    .link-row span { color: var(--muted); font: 700 11px/1 JetBrains Mono, monospace; letter-spacing: .09em; text-transform: uppercase; }
+    .link-row code { font-size: 13px; padding: 0; border: 0; background: transparent; color: #e6f8ff; }
+
+    @media print {
+      @page { size: 13.333in 7.5in; margin: 0; }
+      html, body { margin: 0; padding: 0; background: #05070d; }
+      .deck { display: block; padding: 0; gap: 0; width: 1280px; margin: 0; }
+      .slide { display: block; border: 0; border-radius: 0; box-shadow: none; width: 1280px; height: 720px; min-height: 720px; margin: 0; page-break-after: always; break-after: page; }
+      .slide::after { inset: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <section class="slide" id="slide-1">
+      <div class="content hero-grid">
+        <div>
+          <div class="topbar"><span>Built on Arc Testnet</span><span class="pill"><span class="dot"></span>MVP Live</span></div>
+          <p class="section-label">ArcBuilderProof</p>
+          <h1>Verifiable proof-of-build for <span class="grad">Arc builders.</span></h1>
+          <p class="lede">A lightweight onchain registry where builders publish profiles, project proofs, source links, and reviewer-friendly evidence URLs — designed for grants, hackathons, and ecosystem accountability.</p>
+        </div>
+        <div class="orb-card" aria-label="ArcBuilderProof network visual">
+          <div class="node n1"><b>Builder Profile</b><span>name · skills · metadata</span></div>
+          <div class="node n2"><b>Project Proof</b><span>proofURI · sourceURI</span></div>
+          <div class="node n3"><b>Arc Contract</b><span>0x5546…765F</span></div>
+          <div class="node n4"><b>Review Link</b><span>#/proof/&lt;id&gt;</span></div>
+        </div>
+      </div>
+      <div class="footer"><span>Grant Deck · 2026</span><span>arcbuilderproof.vercel.app</span></div>
+    </section>
+
+    <section class="slide" id="slide-2">
+      <div class="content">
+        <div class="topbar"><span>THE PROBLEM</span><span>Trust is still mostly manual</span></div>
+        <p class="section-label">Builder evidence is fragmented</p>
+        <h2>Grant reviewers need proof, but builder progress lives across scattered links.</h2>
+        <div class="quote-band">
+          <div class="card problem-card accent-violet"><div class="icon">01</div><h3>Offchain portfolios are easy to lose or fake</h3><p>GitHub repos, demos, screenshots, docs, and social posts sit in separate systems with no shared source of truth.</p></div>
+          <div class="card problem-card"><div class="icon">02</div><h3>Review cycles are slow</h3><p>Teams spend time checking wallet ownership, source URLs, deployed apps, and grant evidence manually.</p></div>
+          <div class="card problem-card accent-orange"><div class="icon">03</div><h3>No persistent builder graph</h3><p>As a builder ships more work, their Arc-native reputation should compound — not reset every application cycle.</p></div>
+          <div class="card problem-card accent-green"><div class="icon">04</div><h3>MVPs lack credible provenance</h3><p>Early projects need a simple way to show what is live, what contract backs it, and what evidence proves progress.</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>01 / Problem</span><span>Onchain proofs reduce review friction</span></div>
+    </section>
+
+    <section class="slide" id="slide-3">
+      <div class="content">
+        <div class="topbar"><span>THE SOLUTION</span><span>Public · Onchain · Reviewer-ready</span></div>
+        <p class="section-label">One registry for proof-of-build</p>
+        <h2>ArcBuilderProof turns builder progress into shareable, verifiable records.</h2>
+        <p class="lede">Builders connect a wallet, save an onchain profile, create project proofs, and share static-safe URLs that reviewers can open without needing a dashboard login.</p>
+        <div class="cards">
+          <div class="card"><div class="icon">◎</div><h3>Builder Profiles</h3><p>Name, bio, skills, and metadata anchored to the builder wallet.</p></div>
+          <div class="card accent-violet"><div class="icon">#</div><h3>Project Proofs</h3><p>Title, description, proof URI, source URI, metadata URI, and timestamps.</p></div>
+          <div class="card accent-green"><div class="icon">↗</div><h3>Shareable URLs</h3><p>Proof routes like <span class="code">#/proof/1</span> work on Vercel or static hosting.</p></div>
+          <div class="card accent-orange"><div class="icon">✓</div><h3>Reviewer Context</h3><p>Clear links to app, repository, explorer, and evidence in one place.</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>02 / Solution</span><span>Small surface area, high grant utility</span></div>
+    </section>
+
+    <section class="slide" id="slide-4">
+      <div class="content">
+        <div class="topbar"><span>PRODUCT</span><span>Live MVP screens</span></div>
+        <p class="section-label">See ArcBuilderProof in action</p>
+        <h2>Simple flows for creating profiles and project proofs on Arc.</h2>
+        <div class="screen-wrap">
+          <div class="screenshot"><img src="assets/arcbuilderproof-app.png" alt="ArcBuilderProof live app screenshot" /></div>
+          <div class="stack">
+            <div class="mini"><div class="icon">1</div><div><h3>Connect wallet</h3><p>MetaMask/Rabby-compatible injected wallet flow with Arc Testnet chain switching.</p></div></div>
+            <div class="mini"><div class="icon">2</div><div><h3>Save builder profile</h3><p>Publish identity, skills, and metadata to a minimal Arc contract.</p></div></div>
+            <div class="mini"><div class="icon">3</div><div><h3>Create proof</h3><p>Attach proof/source/metadata links for a specific shipped project or milestone.</p></div></div>
+            <div class="mini"><div class="icon">4</div><div><h3>Share review URL</h3><p>Open proof pages through hash routes that work on static deployments.</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>03 / Product</span><span>Screenshot captured from local build of the live app code</span></div>
+    </section>
+
+    <section class="slide" id="slide-5">
+      <div class="content">
+        <div class="topbar"><span>WHY ARC</span><span>Native builder accountability layer</span></div>
+        <p class="section-label">Purpose-built for Arc ecosystem growth</p>
+        <h2>ArcBuilderProof makes Arc a credible home for builders applying, shipping, and proving.</h2>
+        <div class="arc-grid">
+          <div class="chain-card">
+            <h3>Arc Testnet deployment</h3>
+            <p class="lede" style="font-size:18px;margin-top:14px;">The MVP already targets Arc Testnet, with public chain configuration embedded for static deployment and wallet onboarding.</p>
+            <div class="spec-list">
+              <div class="spec"><span>Chain</span><span>Arc Testnet</span></div>
+              <div class="spec"><span>Chain ID</span><span>5042002</span></div>
+              <div class="spec"><span>RPC</span><span>rpc.testnet.arc.network</span></div>
+              <div class="spec"><span>Explorer</span><span>testnet.arcscan.app</span></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="mini"><div class="icon">⚡</div><div><h3>Fast proof publishing</h3><p>Builders can anchor evidence during active grant cycles, hackathons, and milestones.</p></div></div>
+            <div class="mini"><div class="icon">◈</div><div><h3>Composability</h3><p>Profiles and proofs can become primitives for grant portals, bounty boards, launchpads, and reputation systems.</p></div></div>
+            <div class="mini"><div class="icon">▣</div><div><h3>Ecosystem memory</h3><p>Every proof creates a durable trail of builders, projects, and shipped outcomes on Arc.</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>04 / Why Arc</span><span>Arc-native proof graph for builders</span></div>
+    </section>
+
+    <section class="slide" id="slide-6">
+      <div class="content">
+        <div class="topbar"><span>ARCHITECTURE</span><span>Minimal, auditable stack</span></div>
+        <p class="section-label">How it works under the hood</p>
+        <h2>Static frontend + Arc smart contract + public proof URLs.</h2>
+        <div class="arch">
+          <div class="arch-box"><div class="icon" style="margin:0 auto 14px;">UI</div><h3>Vite React App</h3><p>Static deploy on Vercel/GitHub Pages with hash routing.</p></div>
+          <div class="arch-box"><div class="icon" style="margin:0 auto 14px;">◎</div><h3>User Wallet</h3><p>Injected wallet signs profile and proof transactions.</p></div>
+          <div class="arch-box"><div class="icon" style="margin:0 auto 14px;">SC</div><h3>Arc Contract</h3><p>Stores profile/proof strings, ownership, and timestamps.</p></div>
+          <div class="arch-box"><div class="icon" style="margin:0 auto 14px;">↗</div><h3>Reviewer Link</h3><p>Public proof pages resolve by ID for grant review.</p></div>
+        </div>
+        <div class="two">
+          <div class="card"><h3>Core contract functions</h3><p><span class="code">upsertBuilderProfile</span>, <span class="code">createProjectProof</span>, <span class="code">updateProjectProof</span>, <span class="code">getProjectProof</span>, <span class="code">getProofIdsByBuilder</span>.</p></div>
+          <div class="card accent-green"><h3>Security posture</h3><p>No private data required. Contract stores public strings only; secrets and sensitive personal data should never be published as metadata.</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>05 / Architecture</span><span>Vite · React · TypeScript · ethers · Solidity</span></div>
+    </section>
+
+    <section class="slide" id="slide-7">
+      <div class="content">
+        <div class="topbar"><span>PROGRESS</span><span>MVP is live</span></div>
+        <p class="section-label">Current deployment status</p>
+        <h2>Core product, contract, tests, and live deployment are already shipped.</h2>
+        <div class="stats">
+          <div class="stat"><div class="num">1</div><h3>Arc contract</h3><p>Deployed on Arc Testnet at <span class="code">0x5546…765F</span>.</p></div>
+          <div class="stat"><div class="num">5</div><h3>Core methods</h3><p>Profile, proof creation, proof update, and lookup APIs.</p></div>
+          <div class="stat"><div class="num">100%</div><h3>Static ready</h3><p>Vercel/GitHub Pages compatible app with public env config.</p></div>
+          <div class="stat"><div class="num">✓</div><h3>Grant ready</h3><p>Live app, public repo, explorer address, and pitch materials.</p></div>
+        </div>
+        <div class="two">
+          <div class="card accent-violet"><h3>Live app</h3><p><a href="https://arcbuilderproof.vercel.app">https://arcbuilderproof.vercel.app</a></p></div>
+          <div class="card accent-green"><h3>Source code</h3><p><a href="https://github.com/manjima0795/arc-builder-proof">https://github.com/manjima0795/arc-builder-proof</a></p></div>
+        </div>
+      </div>
+      <div class="footer"><span>06 / Progress</span><span>Ready for grant submission review</span></div>
+    </section>
+
+    <section class="slide" id="slide-8">
+      <div class="content">
+        <div class="topbar"><span>ROADMAP</span><span>From MVP to Arc builder layer</span></div>
+        <p class="section-label">The path to production</p>
+        <h2>Expand from proof registry into ecosystem reputation infrastructure.</h2>
+        <div class="timeline">
+          <div class="phase"><div class="badge">1</div><h3>Phase 1 — Now</h3><ul><li>Polish public proof pages for reviewers.</li><li>Add richer demo data and proof templates.</li><li>Improve wallet/network diagnostics.</li><li>Publish grant deck and onboarding docs.</li></ul></div>
+          <div class="phase"><div class="badge">2</div><h3>Phase 2 — Near Term</h3><ul><li>Builder verification and project categories.</li><li>Proof attestations from reviewers or partners.</li><li>Searchable directory of Arc builders.</li><li>Optional IPFS/Arweave metadata helpers.</li></ul></div>
+          <div class="phase"><div class="badge">3</div><h3>Phase 3 — Ecosystem</h3><ul><li>Grant portal integrations.</li><li>Hackathon and bounty proof workflows.</li><li>Reputation APIs for other Arc apps.</li><li>Mainnet-ready deployment and analytics.</li></ul></div>
+        </div>
+      </div>
+      <div class="footer"><span>07 / Roadmap</span><span>Proofs → Directory → Reputation APIs</span></div>
+    </section>
+
+    <section class="slide" id="slide-9">
+      <div class="content">
+        <div class="topbar"><span>VISION</span><span>Infrastructure for proof-driven builders</span></div>
+        <p class="section-label">A compounding builder graph</p>
+        <h2>ArcBuilderProof can become the public memory layer for everything built on Arc.</h2>
+        <div class="vision-grid">
+          <div class="card vision-card"><div class="big-number">01</div><h3>For builders</h3><p>One canonical profile and proof history that follows them across grants, hackathons, demos, and ecosystem work.</p></div>
+          <div class="card vision-card accent-violet"><div class="big-number">02</div><h3>For reviewers</h3><p>Less manual due diligence: project evidence, source code, app URLs, wallet ownership, and timestamps in one route.</p></div>
+          <div class="card vision-card accent-green"><div class="big-number">03</div><h3>For Arc</h3><p>A visible network of active builders and shipped outcomes that strengthens ecosystem credibility.</p></div>
+          <div class="card vision-card accent-orange"><div class="big-number">04</div><h3>For future apps</h3><p>Composable proof data for grant dashboards, public goods funding, reputation, and bounties.</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>08 / Vision</span><span>Make shipped work discoverable and verifiable</span></div>
+    </section>
+
+    <section class="slide" id="slide-10">
+      <div class="content">
+        <div class="topbar"><span>LINKS</span><span>Submit-ready references</span></div>
+        <p class="section-label">ArcBuilderProof</p>
+        <h2>Grant-ready MVP for Arc builder accountability.</h2>
+        <p class="lede">The current build demonstrates a pragmatic wedge: simple enough to ship now, extensible enough to become Arc's builder proof and reputation layer.</p>
+        <div class="link-grid">
+          <div class="card" style="min-height: 320px; display:grid; align-content:center;">
+            <h3 style="font-size:34px;letter-spacing:-1px;">Built on Arc Testnet</h3>
+            <p style="font-size:18px;line-height:1.55;">Contract deployed, app live, repo public, deck exportable as PDF or editable HTML.</p>
+          </div>
+          <div class="links">
+            <div class="link-row"><span>Live App</span><code>https://arcbuilderproof.vercel.app</code></div>
+            <div class="link-row"><span>GitHub</span><code>https://github.com/manjima0795/arc-builder-proof</code></div>
+            <div class="link-row"><span>Contract</span><code>0x5546117F1ddf189C0f0B9cb725a33FBd6400765F</code></div>
+            <div class="link-row"><span>Network</span><code>Arc Testnet · Chain ID 5042002</code></div>
+            <div class="link-row"><span>Explorer</span><code>https://testnet.arcscan.app</code></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>09 / Close</span><span>ArcBuilderProof · Proof-of-build for Arc</span></div>
+    </section>
+  </main>
+</body>
+</html>
