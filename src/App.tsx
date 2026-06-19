@@ -118,27 +118,35 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  async function switchChainIfConfigured() {
+  async function addOrSwitchArcNetwork() {
+    setError('');
     const ethereum = (window as EthereumWindow).ethereum;
-    if (!ethereum || !ARC_CHAIN_ID || !ARC_RPC_URL) return;
+    if (!ethereum) {
+      setError('No injected wallet found. Install MetaMask/Rabby or use a wallet-enabled browser.');
+      return;
+    }
+    if (!ARC_CHAIN_ID || !ARC_RPC_URL) {
+      setError('Arc network configuration is missing.');
+      return;
+    }
+
     const chainHex = `0x${ARC_CHAIN_ID.toString(16)}`;
+    const chainParams = {
+      chainId: chainHex,
+      chainName: ARC_CHAIN_NAME,
+      rpcUrls: [ARC_RPC_URL],
+      blockExplorerUrls: ARC_BLOCK_EXPLORER ? [ARC_BLOCK_EXPLORER] : [],
+      nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
+    };
+
     try {
       await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: chainHex }] });
+      setStatus(`Switched wallet to ${ARC_CHAIN_NAME}.`);
     } catch (switchError) {
       const maybe = switchError as { code?: number };
       if (maybe.code === 4902) {
-        await ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [
-            {
-              chainId: chainHex,
-              chainName: ARC_CHAIN_NAME,
-              rpcUrls: [ARC_RPC_URL],
-              blockExplorerUrls: ARC_BLOCK_EXPLORER ? [ARC_BLOCK_EXPLORER] : [],
-              nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
-            },
-          ],
-        });
+        await ethereum.request({ method: 'wallet_addEthereumChain', params: [chainParams] });
+        setStatus(`${ARC_CHAIN_NAME} added to wallet.`);
       } else {
         throw switchError;
       }
@@ -152,7 +160,7 @@ function App() {
       setError('No injected wallet found. Install MetaMask/Rabby or use a wallet-enabled browser.');
       return;
     }
-    await switchChainIfConfigured();
+    await addOrSwitchArcNetwork();
     const accounts = (await ethereum.request({ method: 'eth_requestAccounts' })) as string[];
     setAccount(accounts[0] || '');
     setStatus(`Connected ${accounts[0] || ''}`);
@@ -303,6 +311,8 @@ function App() {
         </p>
         <div className="actions">
           <button onClick={connectWallet}>{account ? 'Wallet connected' : 'Connect wallet'}</button>
+          <button className="ghost" onClick={addOrSwitchArcNetwork}>Add Arc Network</button>
+          <a className="button ghost" href="https://faucet.circle.com" target="_blank" rel="noreferrer">Claim Arc Faucet</a>
           <a className="button ghost" href="https://github.com/manjima0795/arc-builder-proof" target="_blank" rel="noreferrer">GitHub repo</a>
         </div>
         <div className="status-grid">
