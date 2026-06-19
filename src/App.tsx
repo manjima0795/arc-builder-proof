@@ -378,7 +378,7 @@ function App() {
       <div className="grid two">
         <form className="card" onSubmit={saveProfile}>
           <h2>1. Builder profile</h2>
-          <Input label="Name" value={profileForm.name} onChange={(name) => setProfileForm({ ...profileForm, name })} required />
+          <Input label="Name" value={profileForm.name} onChange={(name) => setProfileForm({ ...profileForm, name })} />
           <Textarea label="Bio" value={profileForm.bio} onChange={(bio) => setProfileForm({ ...profileForm, bio })} />
           <Input label="Skills" value={profileForm.skills} onChange={(skills) => setProfileForm({ ...profileForm, skills })} />
           <Input label="Metadata URI" value={profileForm.metadataURI} onChange={(metadataURI) => setProfileForm({ ...profileForm, metadataURI })} />
@@ -388,7 +388,7 @@ function App() {
 
         <form className="card" onSubmit={createProof}>
           <h2>2. Project proof</h2>
-          <Input label="Title" value={proofForm.title} onChange={(title) => setProofForm({ ...proofForm, title })} required />
+          <Input label="Title" value={proofForm.title} onChange={(title) => setProofForm({ ...proofForm, title })} />
           <Textarea label="Description" value={proofForm.description} onChange={(description) => setProofForm({ ...proofForm, description })} />
           <Input label="Proof URI" value={proofForm.proofURI} onChange={(proofURI) => setProofForm({ ...proofForm, proofURI })} />
           <Input label="Source URI" value={proofForm.sourceURI} onChange={(sourceURI) => setProofForm({ ...proofForm, sourceURI })} />
