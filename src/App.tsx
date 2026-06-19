@@ -42,18 +42,18 @@ type ProjectProof = {
 };
 
 const emptyProfile = {
-  name: 'Arry / Arc Builder',
-  bio: 'Building Arc Network apps, AI agents, and grant-ready proof infrastructure.',
-  skills: 'Next.js, Solidity, AI Agents, Arc Network, DevOps',
-  metadataURI: 'https://github.com/manjima0795/arc-builder-proof',
+  name: '',
+  bio: '',
+  skills: '',
+  metadataURI: '',
 };
 
 const emptyProof = {
-  title: 'Arc Builder Proof MVP',
-  description: 'Static GitHub Pages app plus EVM-compatible contract for public builder/project proof.',
-  proofURI: 'https://github.com/manjima0795/arc-builder-proof',
-  sourceURI: 'https://github.com/manjima0795/arc-builder-proof',
-  metadataURI: 'arc://builder-proof/mvp',
+  title: '',
+  description: '',
+  proofURI: '',
+  sourceURI: '',
+  metadataURI: '',
 };
 
 function getProofIdFromHash() {
@@ -81,7 +81,7 @@ function addressLink(address: string) {
 
 function App() {
   const [account, setAccount] = useState('');
-  const [status, setStatus] = useState('Ready. Configure a deployed contract address to use onchain mode.');
+  const [status, setStatus] = useState('Ready. Connect a wallet to save your builder profile or create a project proof onchain.');
   const [error, setError] = useState('');
   const [profileForm, setProfileForm] = useState(emptyProfile);
   const [proofForm, setProofForm] = useState(emptyProof);
@@ -135,7 +135,7 @@ function App() {
               chainName: ARC_CHAIN_NAME,
               rpcUrls: [ARC_RPC_URL],
               blockExplorerUrls: ARC_BLOCK_EXPLORER ? [ARC_BLOCK_EXPLORER] : [],
-              nativeCurrency: { name: 'ARC', symbol: 'ARC', decimals: 18 },
+              nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
             },
           ],
         });
