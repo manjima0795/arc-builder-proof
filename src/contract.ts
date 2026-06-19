@@ -1,8 +1,8 @@
-export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || '';
-export const ARC_CHAIN_ID = Number(import.meta.env.VITE_ARC_CHAIN_ID || 0);
-export const ARC_CHAIN_NAME = import.meta.env.VITE_ARC_CHAIN_NAME || 'Arc-compatible EVM';
-export const ARC_RPC_URL = import.meta.env.VITE_ARC_RPC_URL || '';
-export const ARC_BLOCK_EXPLORER = import.meta.env.VITE_ARC_BLOCK_EXPLORER || '';
+export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || '0x5546117F1ddf189C0f0B9cb725a33FBd6400765F';
+export const ARC_CHAIN_ID = Number(import.meta.env.VITE_ARC_CHAIN_ID || 5042002);
+export const ARC_CHAIN_NAME = import.meta.env.VITE_ARC_CHAIN_NAME || 'Arc Testnet';
+export const ARC_RPC_URL = import.meta.env.VITE_ARC_RPC_URL || 'https://rpc.testnet.arc.network';
+export const ARC_BLOCK_EXPLORER = import.meta.env.VITE_ARC_BLOCK_EXPLORER || 'https://testnet.arcscan.app';
 
 export const ARC_BUILDER_PROOF_ABI = [
   {

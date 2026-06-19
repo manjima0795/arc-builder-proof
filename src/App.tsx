@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { BrowserProvider, Contract, JsonRpcProvider, isAddress } from 'ethers';
+import { describeWalletError, isUnknownChainError, toChainHex } from './wallet';
 import {
   ARC_BLOCK_EXPLORER,
   ARC_BUILDER_PROOF_ABI,
@@ -10,12 +11,17 @@ import {
 } from './contract';
 import './styles.css';
 
+type InjectedWallet = {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+  on?: (event: string, handler: (...args: unknown[]) => void) => void;
+  removeListener?: (event: string, handler: (...args: unknown[]) => void) => void;
+  isMetaMask?: boolean;
+  isRabby?: boolean;
+  isRabbyWallet?: boolean;
+};
+
 type EthereumWindow = Window & {
-  ethereum?: {
-    request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-    on?: (event: string, handler: (...args: unknown[]) => void) => void;
-    removeListener?: (event: string, handler: (...args: unknown[]) => void) => void;
-  };
+  ethereum?: InjectedWallet;
 };
 
 type BuilderProfile = {
@@ -91,6 +97,7 @@ function App() {
   const [builderProofIds, setBuilderProofIds] = useState<string[]>([]);
   const [lastTx, setLastTx] = useState('');
   const [walletChainId, setWalletChainId] = useState<number | null>(null);
+  const [walletDiagnostic, setWalletDiagnostic] = useState('No injected wallet detected yet.');
   const [demoProofs, setDemoProofs] = useState<Record<string, ProjectProof>>({});
 
   const hasContract = CONTRACT_ADDRESS && isAddress(CONTRACT_ADDRESS);
@@ -122,11 +129,20 @@ function App() {
 
   async function refreshWalletChain() {
     const ethereum = (window as EthereumWindow).ethereum;
-    if (!ethereum) return null;
-    const chainHex = await ethereum.request({ method: 'eth_chainId' }) as string;
-    const parsed = Number.parseInt(chainHex, 16);
-    setWalletChainId(Number.isFinite(parsed) ? parsed : null);
-    return parsed;
+    if (!ethereum) {
+      setWalletDiagnostic('No injected wallet found on window.ethereum. Open this page in MetaMask, Rabby, or another wallet-enabled browser.');
+      return null;
+    }
+    try {
+      const chainHex = await ethereum.request({ method: 'eth_chainId' }) as string;
+      const parsed = Number.parseInt(chainHex, 16);
+      setWalletChainId(Number.isFinite(parsed) ? parsed : null);
+      setWalletDiagnostic(`Injected wallet detected${ethereum.isRabby || ethereum.isRabbyWallet ? ' (Rabby)' : ethereum.isMetaMask ? ' (MetaMask-compatible)' : ''}. Current chain ${chainHex}; target ${toChainHex(ARC_CHAIN_ID)}.`);
+      return parsed;
+    } catch (err) {
+      setWalletDiagnostic(`Injected wallet detected, but eth_chainId failed: ${describeWalletError(err)}`);
+      return null;
+    }
   }
 
   useEffect(() => {
@@ -160,7 +176,7 @@ function App() {
       return;
     }
 
-    const chainHex = `0x${ARC_CHAIN_ID.toString(16)}`;
+    const chainHex = toChainHex(ARC_CHAIN_ID);
     const chainParams = {
       chainId: chainHex,
       chainName: ARC_CHAIN_NAME,
@@ -170,16 +186,18 @@ function App() {
     };
 
     try {
+      setWalletDiagnostic(`Requesting wallet_switchEthereumChain(${chainHex}) for ${ARC_CHAIN_NAME}…`);
       await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: chainHex }] });
       await refreshWalletChain();
       setStatus(`Switched wallet to ${ARC_CHAIN_NAME}.`);
     } catch (switchError) {
-      const maybe = switchError as { code?: number };
-      if (maybe.code === 4902) {
+      if (isUnknownChainError(switchError)) {
+        setWalletDiagnostic(`Wallet does not know ${ARC_CHAIN_NAME}; requesting wallet_addEthereumChain(${chainHex})…`);
         await ethereum.request({ method: 'wallet_addEthereumChain', params: [chainParams] });
         await refreshWalletChain();
         setStatus(`${ARC_CHAIN_NAME} added to wallet.`);
       } else {
+        setWalletDiagnostic(`Wallet switch failed: ${describeWalletError(switchError)}`);
         throw switchError;
       }
     }
@@ -196,6 +214,11 @@ function App() {
     const accounts = (await ethereum.request({ method: 'eth_requestAccounts' })) as string[];
     const connected = accounts[0] || '';
     setAccount(connected);
+    if (!connected) {
+      setWalletDiagnostic('Wallet returned no accounts. Unlock it and approve account access.');
+      setStatus('Wallet did not return an account. Unlock and approve account access, then try again.');
+      return;
+    }
     setStatus(`Connected ${connected}. Switching to ${ARC_CHAIN_NAME}…`);
 
     await addOrSwitchArcNetwork();
@@ -366,6 +389,9 @@ function App() {
           <Status label="Wallet" value={account || 'Not connected'} />
           <Status label="Contract" value={hasContract ? CONTRACT_ADDRESS : 'Not configured: demo/readme mode'} />
           <Status label="Network" value={walletChainId ? `${isOnArc ? ARC_CHAIN_NAME : `Wrong network (${walletChainId})`} · target ${ARC_CHAIN_ID}` : ARC_CHAIN_ID ? `${ARC_CHAIN_NAME} (${ARC_CHAIN_ID})` : 'Configurable Arc-compatible EVM'} />
+          <Status label="RPC" value={ARC_RPC_URL || 'Not configured'} />
+          <Status label="Explorer" value={ARC_BLOCK_EXPLORER || 'Not configured'} />
+          <Status label="Wallet diagnostics" value={walletDiagnostic} />
         </div>
       </section>
 
