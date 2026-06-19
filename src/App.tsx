@@ -62,6 +62,14 @@ const emptyProof = {
   metadataURI: '',
 };
 
+const WALLET_ACCOUNT_STORAGE_KEY = 'arc-builder-proof-last-account';
+
+function getStoredWalletAccount() {
+  if (typeof window === 'undefined') return '';
+  const saved = window.localStorage.getItem(WALLET_ACCOUNT_STORAGE_KEY) || '';
+  return isAddress(saved) ? saved : '';
+}
+
 function getProofIdFromHash() {
   const match = window.location.hash.match(/#\/proof\/(\d+)/);
   return match?.[1] ?? '';
@@ -86,8 +94,10 @@ function addressLink(address: string) {
 }
 
 function App() {
-  const [account, setAccount] = useState('');
-  const [status, setStatus] = useState('Ready. Connect a wallet to save your builder profile or create a project proof onchain.');
+  const [account, setAccount] = useState(getStoredWalletAccount);
+  const [status, setStatus] = useState(() => getStoredWalletAccount()
+    ? `Wallet previously connected as ${getStoredWalletAccount()}. Refresh wallet status to verify live access.`
+    : 'Ready. Connect a wallet to save your builder profile or create a project proof onchain.');
   const [error, setError] = useState('');
   const [profileForm, setProfileForm] = useState(emptyProfile);
   const [proofForm, setProofForm] = useState(emptyProof);
@@ -154,9 +164,14 @@ function App() {
       await refreshWalletChain();
       try {
         const accounts = (await provider.request({ method: 'eth_accounts' })) as string[];
-        const connected = accounts[0] || '';
+        const connected = accounts[0] || getStoredWalletAccount();
         setAccount(connected);
-        if (connected) setStatus(`Connected ${connected} on ${ARC_CHAIN_NAME}.`);
+        if (accounts[0]) {
+          localStorage.setItem(WALLET_ACCOUNT_STORAGE_KEY, accounts[0]);
+          setStatus(`Connected ${accounts[0]} on ${ARC_CHAIN_NAME}.`);
+        } else if (connected) {
+          setStatus(`Wallet previously connected as ${connected}. Click “Refresh Wallet Status” or “Wallet connected” to re-authorize if needed.`);
+        }
       } catch (err) {
         setWalletDiagnostic(`Injected wallet detected, but eth_accounts failed: ${describeWalletError(err)}`);
       }
@@ -168,6 +183,11 @@ function App() {
     const onAccountsChanged = (accounts: unknown) => {
       const next = Array.isArray(accounts) && typeof accounts[0] === 'string' ? accounts[0] : '';
       setAccount(next);
+      if (next) {
+        localStorage.setItem(WALLET_ACCOUNT_STORAGE_KEY, next);
+      } else {
+        localStorage.removeItem(WALLET_ACCOUNT_STORAGE_KEY);
+      }
       setStatus(next ? `Connected ${next} on ${ARC_CHAIN_NAME}.` : 'Wallet disconnected.');
     };
 
@@ -230,6 +250,7 @@ function App() {
     const accounts = (await ethereum.request({ method: 'eth_requestAccounts' })) as string[];
     const connected = accounts[0] || '';
     setAccount(connected);
+    if (connected) localStorage.setItem(WALLET_ACCOUNT_STORAGE_KEY, connected);
     if (!connected) {
       setWalletDiagnostic('Wallet returned no accounts. Unlock it and approve account access.');
       setStatus('Wallet did not return an account. Unlock and approve account access, then try again.');
